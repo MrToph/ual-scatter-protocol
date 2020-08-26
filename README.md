@@ -1,4 +1,12 @@
-# UAL for Scatter Authenticator
+# UAL for Wallets implementing the Scatter Protocol
+
+This is a fork of [ual-scatter](https://github.com/EOSIO/ual-scatter) that integrates several wallets that work with the Scatter protocol instead of only implementing support for Scatter Wallet.
+
+Currently supported Wallets:
+- Scatter Desktop
+- Wombat
+
+# ual-scatter
 
 This authenticator is meant to be used with [Scatter](https://get-scatter.com/) and [Universal Authenticator Library](https://github.com/EOSIO/universal-authenticator-library). When used in combination with them, it gives developers the ability to request transaction signatures through Scatter using the common UAL API.
 

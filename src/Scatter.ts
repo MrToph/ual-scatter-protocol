@@ -6,8 +6,10 @@ import {
 } from 'universal-authenticator-library'
 import { Name } from './interfaces'
 import { scatterLogo } from './scatterLogo'
+import { wombatLogo } from './wombatLogo'
 import { ScatterUser } from './ScatterUser'
 import { UALScatterError } from './UALScatterError'
+import { isMobile } from './utils'
 
 declare let window: any
 
@@ -80,6 +82,14 @@ export class Scatter extends Authenticator {
   }
 
   public getStyle(): ButtonStyle {
+    if(this.isMobile()) {
+      return {
+        icon: wombatLogo,
+        text: `Wombat`,
+        textColor: 'white',
+        background: '#ff4028'
+      }
+    }
     return {
       icon: scatterLogo,
       text: Name,
@@ -92,10 +102,7 @@ export class Scatter extends Authenticator {
    * Scatter will only render on Desktop Browser Environments
    */
   public shouldRender(): boolean {
-    if (!this.isMobile()) {
-      return true
-    }
-    return false
+    return true;
   }
 
   public shouldAutoLogin(): boolean {
@@ -142,17 +149,11 @@ export class Scatter extends Authenticator {
   }
 
   public isMobile(): boolean {
-    const userAgent = window.navigator.userAgent
-    const isIOS = userAgent.includes('iPhone') || userAgent.includes('iPad')
-    const isMobile = userAgent.includes('Mobile')
-    const isAndroid = userAgent.includes('Android')
-    const isCustom = userAgent.toLowerCase().includes('eoslynx')
-
-    return isIOS || isMobile || isAndroid || isCustom
+    return isMobile()
   }
 
   public getOnboardingLink(): string {
-    return 'https://get-scatter.com/'
+    return this.isMobile() ? 'https://getwombat.io/' : 'https://get-scatter.com/'
   }
 
   public requiresGetKeyConfirmation(): boolean {
