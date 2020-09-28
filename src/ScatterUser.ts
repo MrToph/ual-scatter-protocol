@@ -29,8 +29,17 @@ export class ScatterUser extends User {
       host: rpcEndpoint.host,
       port: rpcEndpoint.port,
     }
-    const rpc = this.rpc
-    this.api = this.scatter.eos(network, Api, { rpc })
+    
+    const signatureProvider = scatter.eosHook(
+      { ...network, blockchain: "eos" },
+      null,
+      true
+    );
+    this.api = new Api({
+      chainId: network.chainId,
+      rpc: this.rpc,
+      signatureProvider,
+    });
   }
 
   public async signTransaction(
