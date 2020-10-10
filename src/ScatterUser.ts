@@ -29,17 +29,22 @@ export class ScatterUser extends User {
       host: rpcEndpoint.host,
       port: rpcEndpoint.port,
     }
-    
-    const signatureProvider = scatter.eosHook(
-      { ...network, blockchain: "eos" },
-      null,
-      true
-    );
-    this.api = new Api({
-      chainId: network.chainId,
-      rpc: this.rpc,
-      signatureProvider,
-    });
+
+    // wombat does not define scatter.eosHook
+    if (typeof scatter.eosHook === `function`) {
+      const signatureProvider = scatter.eosHook(
+        { ...network, blockchain: "eos" },
+        null,
+        true
+      );
+      this.api = new Api({
+        chainId: network.chainId,
+        rpc: this.rpc,
+        signatureProvider,
+      });
+    } else {
+      this.api = scatter.eos(network, Api, { rpc: this.rpc });
+    }
   }
 
   public async signTransaction(
