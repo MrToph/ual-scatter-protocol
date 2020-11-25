@@ -1,24 +1,29 @@
-import ScatterJS from '@scatterjs/core'
-import ScatterEOS from '@scatterjs/eosjs2'
+import ScatterJS from "@scatterjs/core";
+import ScatterEOS from "@scatterjs/eosjs2";
 import {
-  Authenticator, ButtonStyle, Chain,
-  UALError, UALErrorType, User
-} from 'universal-authenticator-library'
-import { Name } from './interfaces'
-import { scatterLogo } from './scatterLogo'
-import { wombatLogo } from './wombatLogo'
-import { ScatterUser } from './ScatterUser'
-import { UALScatterError } from './UALScatterError'
-import { isMobile } from './utils'
+  Authenticator,
+  ButtonStyle,
+  Chain,
+  UALError,
+  UALErrorType,
+  User,
+} from "universal-authenticator-library";
+import { Name } from "./interfaces";
+import { scatterLogo } from "./scatterLogo";
+import { wombatLogo } from "./wombatLogo";
+import { mathWalletLogo } from "./mathWalletLogo";
+import { ScatterUser } from "./ScatterUser";
+import { UALScatterError } from "./UALScatterError";
+import { isMobile } from "./utils";
 
-declare let window: any
+declare let window: any;
 
 export class Scatter extends Authenticator {
-  private users: ScatterUser[] = []
-  private scatter: any
-  private appName: string
-  private scatterIsLoading: boolean = false
-  private initError: UALError | null = null
+  private users: ScatterUser[] = [];
+  private scatter: any;
+  private appName: string;
+  private scatterIsLoading: boolean = false;
+  private initError: UALError | null = null;
 
   /**
    * Scatter Constructor.
@@ -27,13 +32,15 @@ export class Scatter extends Authenticator {
    * @param options { appName } appName is a required option to use Scatter
    */
   constructor(chains: Chain[], options?: any) {
-    super(chains)
+    super(chains);
     if (options && options.appName) {
-      this.appName = options.appName
+      this.appName = options.appName;
     } else {
-      throw new UALScatterError('Scatter requires the appName property to be set on the `options` argument.',
+      throw new UALScatterError(
+        "Scatter requires the appName property to be set on the `options` argument.",
         UALErrorType.Initialization,
-        null)
+        null
+      );
     }
   }
 
@@ -42,59 +49,70 @@ export class Scatter extends Authenticator {
    * if we cannot connect to scatter.
    */
   public async init(): Promise<void> {
-    this.scatterIsLoading = true
-    ScatterJS.plugins(new ScatterEOS())
+    this.scatterIsLoading = true;
+    ScatterJS.plugins(new ScatterEOS());
 
     // set an errored state if scatter doesn't connect
-    if (!await ScatterJS.scatter.connect(this.appName)) {
-      this.initError = new UALScatterError('Error occurred while connecting',
+    if (!(await ScatterJS.scatter.connect(this.appName))) {
+      this.initError = new UALScatterError(
+        "Error occurred while connecting",
         UALErrorType.Initialization,
         null
-      )
+      );
 
-      this.scatterIsLoading = false
+      this.scatterIsLoading = false;
 
-      return
+      return;
     }
 
-    this.scatter = ScatterJS.scatter
-    window.ScatterJS = null
+    this.scatter = ScatterJS.scatter;
+    window.ScatterJS = null;
 
-    this.scatterIsLoading = false
+    this.scatterIsLoading = false;
   }
 
   public reset(): void {
-    this.initError = null
+    this.initError = null;
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.init()
+    this.init();
   }
 
   public isLoading(): boolean {
-    return this.scatterIsLoading
+    return this.scatterIsLoading;
   }
 
   public isErrored(): boolean {
-    return !!this.initError
+    return !!this.initError;
   }
 
   public getError(): UALError | null {
-    return this.initError
+    return this.initError;
   }
 
   public getStyle(): ButtonStyle {
-    if(this.isMobile()) {
-      return {
-        icon: wombatLogo,
-        text: `Wombat`,
-        textColor: 'white',
-        background: '#ff4028'
-      }
-    }
-    return {
-      icon: scatterLogo,
-      text: Name,
-      textColor: 'white',
-      background: '#078CE9'
+    switch (Name) {
+      case `Wombat`:
+        return {
+          icon: wombatLogo,
+          text: `Wombat`,
+          textColor: "white",
+          background: "#ff4028",
+        };
+      case "MathWallet":
+        return {
+          icon: mathWalletLogo,
+          text: Name,
+          textColor: "white",
+          background: "#2c363f",
+        };
+      case `Scatter`:
+      default:
+        return {
+          icon: scatterLogo,
+          text: Name,
+          textColor: "white",
+          background: "#078CE9",
+        };
     }
   }
 
@@ -106,25 +124,22 @@ export class Scatter extends Authenticator {
   }
 
   public shouldAutoLogin(): boolean {
-    return false
+    return false;
   }
 
   public async login(_?: string): Promise<User[]> {
-    this.users = []
+    this.users = [];
 
     try {
       for (const chain of this.chains) {
-        const user = new ScatterUser(chain, this.scatter)
-        await user.getKeys()
-        this.users.push(user)
+        const user = new ScatterUser(chain, this.scatter);
+        await user.getKeys();
+        this.users.push(user);
       }
 
-      return this.users
+      return this.users;
     } catch (e) {
-      throw new UALScatterError(
-        'Unable to login',
-        UALErrorType.Login,
-        e)
+      throw new UALScatterError("Unable to login", UALErrorType.Login, e);
     }
   }
 
@@ -133,11 +148,13 @@ export class Scatter extends Authenticator {
    */
   public async logout(): Promise<void> {
     try {
-      this.scatter.logout()
+      this.scatter.logout();
     } catch (error) {
-      throw new UALScatterError('Error occurred during logout',
+      throw new UALScatterError(
+        "Error occurred during logout",
         UALErrorType.Logout,
-        error)
+        error
+      );
     }
   }
 
@@ -145,22 +162,30 @@ export class Scatter extends Authenticator {
    * Scatter provides account names so it does not need to request it
    */
   public async shouldRequestAccountName(): Promise<boolean> {
-    return false
+    return false;
   }
 
   public isMobile(): boolean {
-    return isMobile()
+    return isMobile();
   }
 
   public getOnboardingLink(): string {
-    return this.isMobile() ? 'https://getwombat.io/' : 'https://get-scatter.com/'
+    switch (Name) {
+      case `Wombat`:
+        return "https://getwombat.io/";
+      case "MathWallet":
+        return "https://mathwallet.org/eos-wallet/";
+      case `Scatter`:
+      default:
+        return "https://get-scatter.com/";
+    }
   }
 
   public requiresGetKeyConfirmation(): boolean {
-    return false
+    return false;
   }
 
   public getName(): string {
-    return Name
+    return Name;
   }
 }

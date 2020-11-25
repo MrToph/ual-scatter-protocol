@@ -5,6 +5,7 @@ This is a fork of [ual-scatter](https://github.com/EOSIO/ual-scatter) that integ
 Currently supported Wallets:
 - Scatter Desktop
 - Wombat
+- MathWallet
 
 # ual-scatter
 
